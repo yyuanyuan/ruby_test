@@ -1,0 +1,29 @@
+#!/bin/bash -eu
+
+source $OPENSHIFT_CARTRIDGE_SDK_BASH
+
+ruby_version=$1
+curr=$2
+next=$3
+
+OSE_20_LATEST="0.0.10.1"
+OSE_21_GA="0.0.17"
+
+# Needed for version 0.0.1 -> 0.1.11 during the 2.0.z lifetime.  This can
+# safely be removed after 2.2.
+if version_lt $curr $OSE_20_LATEST; then
+  if [ -e $OPENSHIFT_HOMEDIR/ruby/metadata/jenkins_shell_command ]; then
+    rm -f $OPENSHIFT_HOMEDIR/ruby/metadata/jenkins_shell_command
+  fi
+fi
+
+# The LD_LIBRARY_PATH is now handled by the Node itself
+# and constructed using LD_LIBRARY_PATH_ELEMENT. This will
+# remove the existing LD_LIBRARY_PATH so the Node one can
+# take the precedence.
+#
+if version_lt $curr $OSE_21_GA; then
+  if [ -f ${OPENSHIFT_RUBY_DIR}env/LD_LIBRARY_PATH ]; then
+    rm -f ${OPENSHIFT_RUBY_DIR}env/LD_LIBRARY_PATH
+  fi
+fi
